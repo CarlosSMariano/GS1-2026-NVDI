@@ -3,8 +3,8 @@ package br.com.nvdi.gs.domain;
 public class FazendaFrutas extends Fazenda {
 
 
-    FazendaFrutas() {}
-    FazendaFrutas (String nome, String proprietario, double latitude, double longitude) {
+    public FazendaFrutas() {}
+    public FazendaFrutas (String nome, String proprietario, double latitude, double longitude) {
         super(nome, proprietario, latitude, longitude);
     }
 

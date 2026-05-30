@@ -2,7 +2,7 @@ package br.com.nvdi.gs.domain;
 
 public class FazendaGraos extends Fazenda {
 
-    FazendaGraos() {}
+    public FazendaGraos() {}
     FazendaGraos (String nome, String proprietario, double latitude, double longitude) {
         super(nome, proprietario, latitude, longitude);
     }
