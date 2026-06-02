@@ -1,5 +1,7 @@
 package br.com.nvdi.gs.domain;
 
+import br.com.nvdi.gs.application.DadosAtuais;
+
 public class FazendaFrutas extends Fazenda {
 
 
@@ -8,16 +10,16 @@ public class FazendaFrutas extends Fazenda {
         super(nome, proprietario, latitude, longitude);
     }
 
-    public String calcularRisco(double temp, double chuva, int umidade) {
-        if (temp > 30 && umidade < 40) {
+    public String calcularRisco(DadosAtuais d) {
+        if (d.getTemperatura() > 30 && d.getUmidade() < 40) {
             return "ALERTA: Risco de escaldadura e desidratação das frutas.";
         }
 
-        if (umidade > 85 && chuva < 10) {
+        if ( d.getUmidade() > 85 && d.getChuva() < 10) {
             return "ALERTA: Risco de proliferação de fungos devido à alta umidade.";
         }
 
-        if (chuva > 80) {
+        if (d.getChuva()  > 80) {
             return "ALERTA: Risco de queda prematura dos frutos e alagamento.";
         }
 

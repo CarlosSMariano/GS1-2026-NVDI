@@ -1,7 +1,10 @@
 package br.com.nvdi.gs.presentation;
 
+import br.com.nvdi.gs.application.APIApplication;
+import br.com.nvdi.gs.application.DadosAtuais;
 import br.com.nvdi.gs.domain.*;
 import br.com.nvdi.gs.infrastructure.Repository;
+
 import java.util.Scanner;
 
 public class Main {
@@ -22,28 +25,34 @@ public class Main {
 
             String opcao = scanner.nextLine();
             switch (opcao) {
-                case "1" -> cadastrarFazenda("GRAOS");
-                case "2" -> cadastrarFazenda("FRUTAS");
-                case "3" -> listarFazendas();
+                case "1" -> cadastrarFazenda();
+                case "2" -> listarFazendas();
+                case "3" -> excluirFazendas();
+                case "4" -> consultarPrevisao();
                 case "0" -> rodando = false;
-                default -> System.out.println("Opção inválida!");
+                default -> System.out.println("Opcao invalida!");
             }
             if (rodando) pausar();
         }
+
+        System.out.println("\nObrigado por usar o Sistema de Monitoramento!");
     }
 
     private static void mostrarMenu() {
         String menu = """
-            ===========================
-            ~ SISTEMA DE MONITORAMENTO ~
-            ===========================
-                1 - Cadastrar fazendas
-                2 - Listar fazendas
-                3 - Editar fazendas
-                4 - Excluir fazendas
-                0 - sair
-            ==========================
-            --> Escolha uma opção: """;
+            \n
+            ╔══════════════════════════════════════╗
+            ║        SISTEMA DE MONITORAMENTO      ║
+            ╠══════════════════════════════════════╣
+            ║                                      ║
+            ║      1 - Cadastrar fazendas          ║
+            ║      2 - Listar fazendas             ║
+            ║      3 - Excluir fazendas            ║
+            ║      4 - Consultar Previsao          ║
+            ║      0 - Sair                        ║
+            ║                                      ║
+            ╚══════════════════════════════════════╝
+            => Escolha uma opcao: """;
         imprimirMenu(menu, 10);
     }
 
@@ -60,47 +69,231 @@ public class Main {
         System.out.print(RESET);
     }
 
-    private static void cadastrarFazenda(String tipo) {
-        System.out.print("\n--> Nome da Fazenda: ");
+    private static void cadastrarFazenda() {
+        System.out.println("\n┌─────────────────────────────────┐");
+        System.out.println("│     NOVO CADASTRO DE FAZENDA    │");
+        System.out.println("└─────────────────────────────────┘");
+
+        System.out.print("Nome da Fazenda: ");
         String nome = scanner.nextLine();
-        System.out.print("--> Latitude: ");
+        System.out.print("Nome do Proprietario: ");
+        String nomeProprietario = scanner.nextLine();
+        System.out.print("Latitude (ex: 23.550520): ");
         double lat = Double.parseDouble(scanner.nextLine());
-        System.out.print("--> Longitude: ");
+        System.out.print("Longitude (ex: 46.633308): ");
         double lon = Double.parseDouble(scanner.nextLine());
 
-        Fazenda f = tipo.equals("GRAOS") ? new FazendaGraos() : new FazendaFrutas();
+        System.out.println("\n┌─────────────────────────────────┐");
+        System.out.println("│          TIPO DE PLANTIO        │");
+        System.out.println("├─────────────────────────────────┤");
+        System.out.println("│    1 - Graos                    │");
+        System.out.println("│    2 - Frutas                   │");
+        System.out.println("└─────────────────────────────────┘");
+        System.out.print("=> Escolha uma opcao: ");
+        String tipo = scanner.nextLine();
+
+        Fazenda f = tipo.equals("1") ? new FazendaGraos() : new FazendaFrutas();
         f.setNome(nome);
+        f.setProprietario(nomeProprietario);
         f.setLatitude(lat);
         f.setLongitude(lon);
 
-        if (tipo.equals("GRAOS")) {
+        if (tipo.equals("1")) {
             fazendaGraosRepo.salvar(f);
+            System.out.println("\nFazenda de GRAOS cadastrada com sucesso!");
         } else {
             fazendaFrutasRepo.salvar(f);
+            System.out.println("\nFazenda de FRUTAS cadastrada com sucesso!");
         }
 
-        System.out.println("--> Cadastrado com sucesso!");
+        System.out.println("   ID da fazenda: " + f.getId());
     }
 
     private static void listarFazendas() {
-        if (fazendaGraosRepo.getFazendas().isEmpty() && fazendaFrutasRepo.getFazendas().isEmpty()) {
-            System.out.println("--> Nenhuma fazenda cadastrada.");
+        if (fazendaGraosRepo.exibirFazendas().isEmpty() && fazendaFrutasRepo.exibirFazendas().isEmpty()) {
+            System.out.println("\nNenhuma fazenda cadastrada no sistema.");
             return;
         }
 
-        if(!fazendaGraosRepo.getFazendas().isEmpty()) {
+        System.out.println("\n┌─────────────────────────────────────────────────┐");
+        System.out.println("│                 LISTA DE FAZENDAS               │");
+        System.out.println("└─────────────────────────────────────────────────┘");
 
-            fazendaGraosRepo.getFazendas().forEach(System.out::println);
-        }
+        listarFazendasGraos();
+        listarFazendasFrutas();
+    }
 
-        if (!fazendaFrutasRepo.getFazendas().isEmpty()) {
-            fazendaFrutasRepo.getFazendas().forEach(System.out::println);
+    private static void listarFazendasFrutas() {
+        if (!fazendaFrutasRepo.exibirFazendas().isEmpty()) {
+            System.out.println("\n═══════════════════════════════════════════════");
+            System.out.println("            FAZENDAS DE FRUTAS");
+            System.out.println("═══════════════════════════════════════════════");
+            System.out.println(String.format("%-5s %-25s %-20s %-15s %-15s",
+                    "ID", "NOME", "PROPRIETARIO", "LATITUDE", "LONGITUDE"));
+            System.out.println("─────────────────────────────────────────────────────────");
+
+            fazendaFrutasRepo.exibirFazendas().forEach(fazenda -> {
+                System.out.println(String.format("%-5d %-25s %-20s %-15.6f %-15.6f",
+                        fazenda.getId(),
+                        fazenda.getNome(),
+                        fazenda.getProprietario(),
+                        fazenda.getLatitude(),
+                        fazenda.getLongitude()));
+            });
+            System.out.println("═══════════════════════════════════════════════");
+        } else {
+            System.out.println("\nNenhuma fazenda de FRUTAS cadastrada.");
         }
     }
 
+    private static void listarFazendasGraos() {
+        if (!fazendaGraosRepo.exibirFazendas().isEmpty()) {
+            System.out.println("\n═══════════════════════════════════════════════");
+            System.out.println("            FAZENDAS DE GRAOS");
+            System.out.println("═══════════════════════════════════════════════");
+            System.out.println(String.format("%-5s %-25s %-20s %-15s %-15s",
+                    "ID", "NOME", "PROPRIETARIO", "LATITUDE", "LONGITUDE"));
+            System.out.println("─────────────────────────────────────────────────────────");
+
+            fazendaGraosRepo.exibirFazendas().forEach(fazenda -> {
+                System.out.println(String.format("%-5d %-25s %-20s %-15.6f %-15.6f",
+                        fazenda.getId(),
+                        fazenda.getNome(),
+                        fazenda.getProprietario(),
+                        fazenda.getLatitude(),
+                        fazenda.getLongitude()));
+            });
+            System.out.println("═══════════════════════════════════════════════");
+        } else {
+            System.out.println("\nNenhuma fazenda de GRAOS cadastrada.");
+        }
+    }
+
+    private static void excluirFazendas() {
+        Repository repo = null;
+        String tipoFazenda = "";
+
+        System.out.println("\n┌─────────────────────────────────┐");
+        System.out.println("│           EXCLUIR FAZENDA        │");
+        System.out.println("├─────────────────────────────────┤");
+        System.out.println("│    1 - Graos                      │");
+        System.out.println("│    2 - Frutas                     │");
+        System.out.println("└─────────────────────────────────┘");
+        System.out.print("=> Escolha uma opcao: ");
+        String tipo = scanner.nextLine();
+
+        if (tipo.equals("1")) {
+            listarFazendasGraos();
+            repo = fazendaGraosRepo;
+            tipoFazenda = "GRAOS";
+        } else if (tipo.equals("2")) {
+            listarFazendasFrutas();
+            repo = fazendaFrutasRepo;
+            tipoFazenda = "FRUTAS";
+        } else {
+            System.out.println("Opcao invalida!");
+            return;
+        }
+
+        if (repo.exibirFazendas().isEmpty()) {
+            System.out.println("\nNao ha fazendas de " + tipoFazenda + " para excluir.");
+            return;
+        }
+
+        System.out.print("\nDigite o ID da fazenda que deseja excluir: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        Fazenda fazenda = repo.encontrarFazenda(id);
+        if (fazenda != null) {
+            System.out.print("\nTem certeza que deseja excluir a fazenda '" +
+                    fazenda.getNome() + "'? (s/N): ");
+            String confirmacao = scanner.nextLine();
+
+            if (confirmacao.equalsIgnoreCase("s")) {
+                repo.remover(id);
+                System.out.println("Fazenda excluida com sucesso!");
+            } else {
+                System.out.println("Exclusao cancelada.");
+            }
+        } else {
+            System.out.println("Fazenda com ID " + id + " nao encontrada!");
+        }
+    }
+
+    private static void consultarPrevisao() {
+        Repository repo = null;
+        String tipoFazenda = "";
+
+        System.out.println("\n┌─────────────────────────────────┐");
+        System.out.println("│        CONSULTAR PREVISAO       │");
+        System.out.println("├─────────────────────────────────┤");
+        System.out.println("│    1 - Graos                    │");
+        System.out.println("│    2 - Frutas                   │");
+        System.out.println("└─────────────────────────────────┘");
+        System.out.print("=> Escolha uma opcao: ");
+        String tipo = scanner.nextLine();
+
+        if (tipo.equals("1")) {
+            listarFazendasGraos();
+            repo = fazendaGraosRepo;
+            tipoFazenda = "GRAOS";
+        } else if (tipo.equals("2")) {
+            listarFazendasFrutas();
+            repo = fazendaFrutasRepo;
+            tipoFazenda = "FRUTAS";
+        } else {
+            System.out.println("Opcao invalida!");
+            return;
+        }
+
+        if (repo.exibirFazendas().isEmpty()) {
+            System.out.println("\nNao ha fazendas de " + tipoFazenda + " cadastradas.");
+            return;
+        }
+
+        System.out.print("\nDigite o ID da fazenda para consultar a previsao: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        Fazenda fazenda = repo.encontrarFazenda(id);
+        if (fazenda == null) {
+            System.out.println("Fazenda com ID " + id + " nao encontrada!");
+            return;
+        }
+
+        System.out.println("\nBuscando dados climaticos...");
+
+        APIApplication app = new APIApplication();
+        DadosAtuais dadosClimaticos = app.getData(fazenda.getLatitude(), fazenda.getLongitude());
+
+        System.out.println("\n┌─────────────────────────────────────────────────┐");
+        System.out.println("│              PREVISAO PARA A FAZENDA            │");
+        System.out.println("├─────────────────────────────────────────────────┤");
+        System.out.println("│  Nome: " + fazenda.getNome());
+        System.out.println("│  Proprietario: " + fazenda.getProprietario());
+        System.out.println("│  Localizacao: " + String.format("%.6f", fazenda.getLatitude()) +
+                ", " + String.format("%.6f", fazenda.getLongitude()));
+        System.out.println("└─────────────────────────────────────────────────┘");
+
+        System.out.println("\n┌─────────────────────────────────────────────────┐");
+        System.out.println("│                CONDICOES CLIMATICAS             │");
+        System.out.println("├─────────────────────────────────────────────────┤");
+        System.out.println("│  Temperatura: " + dadosClimaticos.getTemperatura() + "C");
+        System.out.println("│  Umidade: " + dadosClimaticos.getUmidade() + "%");
+        System.out.println("│  Chuva: " + dadosClimaticos.getChuva() + " mm");
+        System.out.println("│  Vento: " + dadosClimaticos.getVento() + " km/h");
+        System.out.println("└─────────────────────────────────────────────────┘");
+
+        System.out.println("\n┌─────────────────────────────────────────────────┐");
+        System.out.println("│                 ANALISE DE RISCO                │");
+        System.out.println("├─────────────────────────────────────────────────┤");
+        System.out.println(" "+fazenda.calcularRisco(dadosClimaticos));
+        System.out.println("└─────────────────────────────────────────────────┘");
+    }
 
     private static void pausar() {
-        System.out.println("\nPressione < ENTER > para continuar...");
+        System.out.print("\nPressione ENTER para continuar...");
         scanner.nextLine();
     }
 }

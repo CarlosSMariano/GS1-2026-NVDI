@@ -1,5 +1,7 @@
 package br.com.nvdi.gs.domain;
 
+import br.com.nvdi.gs.application.DadosAtuais;
+
 public class Fazenda {
     private int id;
     private String nome;
@@ -17,8 +19,8 @@ public class Fazenda {
         this.longitude = longitude;
     }
 
-    public String calcularRisco(double chuva) {
-        return (chuva > 80) ? "Risco de Alagamento" : "Condições Normais";
+    public String calcularRisco(DadosAtuais d) {
+        return (d.getChuva() > 80) ? "Risco de Alagamento" : "Condições Normais";
     }
 
     public String getNome() {
@@ -59,5 +61,10 @@ public class Fazenda {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Id: " + this.id + " | Nome: "  + this.nome + " | Proprietario: " + this.proprietario;
     }
 }

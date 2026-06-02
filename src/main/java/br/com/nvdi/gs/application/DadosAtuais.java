@@ -1,15 +1,21 @@
 package br.com.nvdi.gs.application;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DadosAtuais {
+
     private String time;
-    private double temperature_2m;
-    private int relative_humidity_2m;
-    private double wind_speed_10m;
-    private double rain;
-    private double surface_pressure;
+    @JsonProperty("temperature_2m")
+    private double temperatura;
+    @JsonProperty("relative_humidity_2m")
+    private int umidade;
+    @JsonProperty("wind_speed_10m")
+    private double vento;
+    @JsonProperty("rain")
+    private double chuva;
+
 
     public String getTime() {
         return time;
@@ -19,51 +25,43 @@ public class DadosAtuais {
         this.time = time;
     }
 
-    public double getTemperature_2m() {
-        return temperature_2m;
+    public double getTemperatura() {
+        return temperatura;
     }
 
-    public void setTemperature_2m(double temperature_2m) {
-        this.temperature_2m = temperature_2m;
+    public void setTemperatura(double temperatura) {
+        this.temperatura = temperatura;
     }
 
-    public int getRelative_humidity_2m() {
-        return relative_humidity_2m;
+    public int getUmidade() {
+        return umidade;
     }
 
-    public void setRelative_humidity_2m(int relative_humidity_2m) {
-        this.relative_humidity_2m = relative_humidity_2m;
+    public void setUmidade(int umidade) {
+        this.umidade = umidade;
     }
 
-    public double getWind_speed_10m() {
-        return wind_speed_10m;
+    public double getVento() {
+        return vento;
     }
 
-    public void setWind_speed_10m(double wind_speed_10m) {
-        this.wind_speed_10m = wind_speed_10m;
+    public void setVento(double vento) {
+        this.vento = vento;
     }
 
-    public double getRain() {
-        return rain;
+    public double getChuva() {
+        return chuva;
     }
 
-    public void setRain(double rain) {
-        this.rain = rain;
-    }
-
-    public double getSurface_pressure() {
-        return surface_pressure;
-    }
-
-    public void setSurface_pressure(double surface_pressure) {
-        this.surface_pressure = surface_pressure;
+    public void setChuva(double chuva) {
+        this.chuva = chuva;
     }
 
     @Override
     public String toString() {
-        return "DadosAtuais{" + "time=" + time  + ", temperature_2m=" + temperature_2m
-                + ", relative_humidity_2m=" + relative_humidity_2m
-                + ", wind_speed_10m=" + wind_speed_10m + ", rain=" + rain
-                + ", surface_pressure=" + surface_pressure + '}';
+        return "Dados Atuais { " +
+                "\nHora: " + time + "\nTemperatura: " + this.temperatura +
+                "\nUmidade: " + this.umidade + "\nVento: " + this.vento +
+                "\nChuva: " + this.chuva + "\n}";
     }
 }

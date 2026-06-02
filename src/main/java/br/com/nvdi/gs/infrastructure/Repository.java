@@ -16,7 +16,11 @@ public class Repository {
         this.fazendas.add(fazenda);
     }
 
-    public ArrayList<Fazenda> getFazendas() {
+    public Fazenda encontrarFazenda(int id){
+        return fazendas.stream().filter(f -> f.getId() == id).findFirst().orElse(null);
+    }
+
+    public ArrayList<Fazenda> exibirFazendas() {
         return fazendas;
     }
 
@@ -25,7 +29,7 @@ public class Repository {
         try{
             this.fazendas.removeIf(f -> f.getId() == id);
         }catch (Exception e){
-            System.out.println("Erro fazenda não encontrada");
+            System.out.println("! Erro fazenda não encontrada!");
             return;
         }
 
@@ -33,6 +37,8 @@ public class Repository {
             fazendas.get(i).setId(this.fazendas.size() + 1);
         }
 
-        System.out.println("Fazenda removida com sucesso");
+        System.out.println("--> Fazenda removida com sucesso!!");
     }
+
+
 }
