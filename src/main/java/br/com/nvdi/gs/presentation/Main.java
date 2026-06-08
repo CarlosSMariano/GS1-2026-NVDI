@@ -28,7 +28,8 @@ public class Main {
                 case "1" -> cadastrarFazenda();
                 case "2" -> listarFazendas();
                 case "3" -> excluirFazendas();
-                case "4" -> consultarPrevisao();
+                case "4" -> editarFazenda();
+                case "5" -> consultarPrevisao();
                 case "0" -> rodando = false;
                 default -> System.out.println("Opcao invalida!");
             }
@@ -174,10 +175,10 @@ public class Main {
         String tipoFazenda = "";
 
         System.out.println("\n┌─────────────────────────────────┐");
-        System.out.println("│           EXCLUIR FAZENDA        │");
+        System.out.println("│           EXCLUIR FAZENDA       │");
         System.out.println("├─────────────────────────────────┤");
-        System.out.println("│    1 - Graos                      │");
-        System.out.println("│    2 - Frutas                     │");
+        System.out.println("│    1 - Graos                    │");
+        System.out.println("│    2 - Frutas                   │");
         System.out.println("└─────────────────────────────────┘");
         System.out.print("=> Escolha uma opcao: ");
         String tipo = scanner.nextLine();
@@ -220,6 +221,88 @@ public class Main {
             System.out.println("Fazenda com ID " + id + " nao encontrada!");
         }
     }
+
+    private static void editarFazenda() {
+        Repository repo = null;
+        String tipoFazenda = "";
+
+        System.out.println("\n┌─────────────────────────────────┐");
+        System.out.println("│           EDITAR FAZENDA        │");
+        System.out.println("├─────────────────────────────────┤");
+        System.out.println("│    1 - Graos                    │");
+        System.out.println("│    2 - Frutas                   │");
+        System.out.println("└─────────────────────────────────┘");
+        System.out.print("=> Escolha uma opcao: ");
+        String tipo = scanner.nextLine();
+
+        if (tipo.equals("1")) {
+            listarFazendasGraos();
+            repo = fazendaGraosRepo;
+            tipoFazenda = "GRAOS";
+        } else if (tipo.equals("2")) {
+            listarFazendasFrutas();
+            repo = fazendaFrutasRepo;
+            tipoFazenda = "FRUTAS";
+        } else {
+            System.out.println("Opcao invalida!");
+            return;
+        }
+
+        if (repo.exibirFazendas().isEmpty()) {
+            System.out.println("\nNao ha fazendas de " + tipoFazenda + " para editar.");
+            return;
+        }
+
+        System.out.print("\nDigite o ID da fazenda que deseja editar: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        Fazenda fazenda = repo.encontrarFazenda(id);
+        if (fazenda == null) {
+            System.out.println("Fazenda com ID " + id + " nao encontrada!");
+            return;
+        }
+
+        System.out.println("\n┌─────────────────────────────────────────────────┐");
+        System.out.println("│              DADOS ATUAIS DA FAZENDA            │");
+        System.out.println("├─────────────────────────────────────────────────┤");
+        System.out.println("│  Nome: " + fazenda.getNome());
+        System.out.println("│  Proprietario: " + fazenda.getProprietario());
+        System.out.println("│  Latitude: " + fazenda.getLatitude());
+        System.out.println("│  Longitude: " + fazenda.getLongitude());
+        System.out.println("└─────────────────────────────────────────────────┘");
+
+        System.out.println("\n┌─────────────────────────────────────────────────┐");
+        System.out.println("│            NOVOS DADOS (opcionais)              │");
+        System.out.println("└─────────────────────────────────────────────────┘");
+
+        System.out.print("Novo nome (ENTER para manter): ");
+        String nome = scanner.nextLine();
+        if (!nome.isEmpty()) {
+            fazenda.setNome(nome);
+        }
+
+        System.out.print("Novo proprietario (ENTER para manter): ");
+        String proprietario = scanner.nextLine();
+        if (!proprietario.isEmpty()) {
+            fazenda.setProprietario(proprietario);
+        }
+
+        System.out.print("Nova latitude (ENTER para manter): ");
+        String latStr = scanner.nextLine();
+        if (!latStr.isEmpty()) {
+            fazenda.setLatitude(Double.parseDouble(latStr));
+        }
+
+        System.out.print("Nova longitude (ENTER para manter): ");
+        String lonStr = scanner.nextLine();
+        if (!lonStr.isEmpty()) {
+            fazenda.setLongitude(Double.parseDouble(lonStr));
+        }
+
+        System.out.println("\nFazenda editada com sucesso!");
+    }
+
 
     private static void consultarPrevisao() {
         Repository repo = null;
